@@ -22,10 +22,19 @@ interface BlueGreenConfig {
 }
 
 export async function middleware(req: NextRequest) {
+  console.log(req.nextUrl.hostname);
+  console.log(process.env.VERCEL_PROJECT_PRODUCTION_URL);
+
   // We don't want to run blue-green during development.
   if (process.env.NODE_ENV !== "production") {
     return NextResponse.next();
   }
+
+  // We only run blue-green deployments when accesing from production urls
+  if (req.nextUrl.hostname !== process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return NextResponse.next();
+  }
+
   // We only want to run blue-green for GET requests that are for HTML documents.
   if (req.method !== "GET") {
     return NextResponse.next();
